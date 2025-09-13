@@ -9,6 +9,46 @@ document.addEventListener('DOMContentLoaded', function () {
         {x: 160, y: 200}, {x:140 , y:200}, {x: 120, y: 200}
     ];  // [HEAD, BODY, BODY, TAIL]
 
+    let dx = cellSize; //+20 
+    let dy = 0;
+
+    function updateSnake() {
+        let newHead = {x: snake[0].x + dx, y: snake[0].y + dy};
+        snake.unshift(newHead); //Add new-head to the snake array.
+
+        //Check collision with food.
+        if(newHead.x === food.x && newHead.y === food.y) {
+            score += 10
+            //TODO : Move Food
+        } else {
+            snake.pop(); //Remove the tail.
+        }
+    }
+
+    function changeDirection(event) {
+        console.log("Key Pressed.", event);
+
+        const isGoingDown = dy === cellSize;
+        const isGoingUp = dy === -cellSize;
+        const isGoingRight = dx === cellSize;
+        const isGoingLeft = dx === -cellSize;
+
+        if(event.key === "ArrowUp" && !isGoingDown) {
+            dx = 0;
+            dy = -cellSize;
+        } else if(event.key == "ArrowDown" && !isGoingUp) {
+            dx = 0;
+            dy = cellSize;
+        } else if(event.key == "ArrowLeft" && !isGoingRight) {
+            dx = -cellSize;
+            dy = 0;
+        } else if(event.key == "ArrowRight" && !isGoingLeft) {
+            dx = cellSize;
+            dy = 0;
+        } 
+
+    }
+
     function drawDiv(x, y, label) { 
         const divElement = document.createElement('div');
         divElement.classList.add(label);
@@ -30,11 +70,19 @@ document.addEventListener('DOMContentLoaded', function () {
         gameArena.appendChild(foodElement);
     }
 
+    function gameLoop() {
+        setInterval(() => {
+            updateSnake();
+            drawFoodAndSnake();
+        }, 200)
+    }
+
     function runGame() {
         if(!gameStarted) {
             gameStarted = true;
-            drawFoodAndSnake();
-            // gameLoop(); TODO: Will Implement later.
+            document.addEventListener('keydown', changeDirection);
+            // drawFoodAndSnake();
+            gameLoop(); 
         }
     }
 
