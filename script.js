@@ -12,6 +12,25 @@ document.addEventListener('DOMContentLoaded', function () {
     let dx = cellSize; //+20 
     let dy = 0;
 
+    let intervalId;
+    let gameSpeed = 200;
+
+    function drawScoreBoard() {
+        const scoreBoard = document.getElementById('score-board');
+        scoreBoard.textContent = `score : ${score}`;
+    }
+
+    function updateFood() {
+        let newX, newY;
+
+        do {
+            newX = Math.floor(Math.random() * 29) * cellSize;
+            newY = Math.floor(Math.random() * 29) * cellSize;
+        } while(snake.some((snakeCell) => { return (snakeCell.x === newX && snake.y === newY)}));
+
+        food = {x: newX, y: newY};
+    }
+
     function updateSnake() {
         let newHead = {x: snake[0].x + dx, y: snake[0].y + dy};
         snake.unshift(newHead); //Add new-head to the snake array.
@@ -19,7 +38,14 @@ document.addEventListener('DOMContentLoaded', function () {
         //Check collision with food.
         if(newHead.x === food.x && newHead.y === food.y) {
             score += 10
-            //TODO : Move Food
+            updateFood();
+
+            //Update the speed of the snake
+            if(gameSpeed > 50) {
+                clearInterval(intervalId);
+                gameSpeed -= 10;
+                gameLoop();
+            }
         } else {
             snake.pop(); //Remove the tail.
         }
@@ -70,14 +96,47 @@ document.addEventListener('DOMContentLoaded', function () {
         gameArena.appendChild(foodElement);
     }
 
+    function isGameOver() {
+        //Snake Collision with body check
+        for(let i=1; i<snake.length; i++) {
+            if(snake[0].x === snake[i].x && snake[0].y === snake[i].y) {
+                return true;
+            }
+        }
+
+        //Wall Collision Check
+        const hitLeftWall = (snake[0].x < 0); //snake[0] -> head
+        const hitRightWall = (snake[0].x > arenaSize - cellSize);
+        const hitTopWall = (snake[0].y < 0);
+        const hitBottomWall = (snake[0].y > arenaSize - cellSize);
+
+        return hitLeftWall || hitRightWall || hitTopWall || hitBottomWall;
+
+    }
+
     function gameLoop() {
-        setInterval(() => {
+        intervalId = setInterval(() => {
+            if(isGameOver()) {
+                clearInterval(intervalId);
+                gameStarted = false;
+                alert('Game Over' + '\n' + 'Your Score is : ' + score);
+                let startButton = document.getElementById('start-button');
+                startButton.style.removeProperty("display");
+                return;
+            }
             updateSnake();
             drawFoodAndSnake();
-        }, 200)
+            drawScoreBoard();
+        }, gameSpeed)
     }
 
     function runGame() {
+        //Whenever the start game button will hit it will bring back the snake and food to its intiale position.
+        food = {x: 300, y: 200}; 
+        snake = [
+            {x: 160, y: 200}, {x:140 , y:200}, {x: 120, y: 200}
+        ];
+
         if(!gameStarted) {
             gameStarted = true;
             document.addEventListener('keydown', changeDirection);
@@ -95,6 +154,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const startButton = document.createElement('button');
         startButton.textContent = "Start Game";
         startButton.classList.add('start-button');
+        startButton.id = 'start-button';
 
         startButton.addEventListener('click', function startGame() {
             startButton.style.display = 'none'; //Hide the start Button.
