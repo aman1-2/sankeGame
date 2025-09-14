@@ -24,9 +24,9 @@ document.addEventListener('DOMContentLoaded', function () {
         let newX, newY;
 
         do {
-            newX = Math.floor(Math.random() * 29) * cellSize;
-            newY = Math.floor(Math.random() * 29) * cellSize;
-        } while(snake.some((snakeCell) => { return (snakeCell.x === newX && snake.y === newY)}));
+            newX = Math.floor(Math.random() * 30) * cellSize;
+            newY = Math.floor(Math.random() * 30) * cellSize;
+        } while(snake.some((snakeCell) => { return (snakeCell.x === newX && snakeCell.y === newY)}));
 
         food = {x: newX, y: newY};
     }
@@ -106,9 +106,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
         //Wall Collision Check
         const hitLeftWall = (snake[0].x < 0); //snake[0] -> head
-        const hitRightWall = (snake[0].x > arenaSize - cellSize);
+        const hitRightWall = (snake[0].x >= arenaSize - cellSize);
         const hitTopWall = (snake[0].y < 0);
-        const hitBottomWall = (snake[0].y > arenaSize - cellSize);
+        const hitBottomWall = (snake[0].y >= arenaSize - cellSize);
 
         return hitLeftWall || hitRightWall || hitTopWall || hitBottomWall;
 
@@ -131,6 +131,11 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function runGame() {
+        //Resetting all the values again when start Button hit again.
+        score = 0;
+        dx = cellSize;
+        dy = 0;
+        gameSpeed = 200;
         //Whenever the start game button will hit it will bring back the snake and food to its intiale position.
         food = {x: 300, y: 200}; 
         snake = [
